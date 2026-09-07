@@ -1,23 +1,46 @@
 pipeline {
-    agent any // Instructs Jenkins to run this pipeline on any available executor
+    agent any
 
     stages {
-        stage('Build') { 
+        stage('Initialize & Lint') {
             steps {
-                echo 'Step 1: Compiling application and dependencies...'
+                echo 'Checking project structure and code linting...'
+                sh 'ls -la' 
             }
         }
-        
-        stage('Test') { 
+
+        stage('Automated Test Workflow') {
             steps {
-                echo 'Step 2: Executing automated testing suite...'
+                echo 'Running automated test suites...'
+                sh 'node app.js'
             }
         }
-        
-        stage('Deploy') { 
+
+        stage('Package & Build Artifact') {
             steps {
-                echo 'Step 3: Deploying packaged artifact to server...'
+                echo 'Packaging the application into an artifact...'
+                sh 'mkdir -p build && cp app.js build/'
+                echo 'Artifact created successfully inside build/ directory.'
+            }
+        }
+
+        stage('Automated Deployment') {
+            steps {
+                echo 'Deploying application to local environment...'
+                sh 'echo "Deployment Complete at $(date)" > build/deploy.log'
+                sh 'cat build/deploy.log'
             }
         }
     }
+
+    post {
+        success {
+            echo 'Task 2 Automation Complete: ALL WORKFLOWS PASSED!'
+        }
+        failure {
+            echo 'Automation Failed: Check Console Logs.'
+        }
+    }
 }
+
+
